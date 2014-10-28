@@ -14,15 +14,20 @@ int main(void){
 	int i = 0, j = 0;
 	int choix;
 	struct Labyrinthe lab = {NULL,0,0};
-//	do{
+	do{
 		MenuDisplay();
-		//scanf("%d",&choix);
-		switch(1) {
+		scanf("%d",&choix);
+		switch(choix) {
 			case 1 :
 				lab = createFixedLab(lab,LAB_L_FIX, LAB_C_FIX);
 				afficherLab(lab);
 				break;
 			case 2 : 
+				//char * nomfichier;
+			/*	printf("Entrez le chemin absolue de votre fichier à charger : \n");
+				scanf("%s", &nomfichier);*/
+				lab = createLabFromFile(lab/*, nomfichier*/);
+				afficherLab(lab);
 				break;
 			case 3 :
 				lab = createRandomLab(lab);
@@ -34,6 +39,6 @@ int main(void){
 			default :
 				printf("Le numero du menu est incorrect !\n");
 		}
-//	}while(choix<1 || choix>4);
+	}while(choix<1 || choix>4);
 
 }
