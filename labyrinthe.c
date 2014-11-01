@@ -2,18 +2,23 @@
 #include <stdlib.h>
 #include "labyrinthe.h"
 
-
+//Initialisation d'un tableau 2 dimension à valeur fixe
 unsigned short** initTab2DFixed(){
 	int i = 0, j = 0;
+	//Valeur fixé
 	unsigned short tab2Dfixe[LAB_C_FIX][LAB_L_FIX] = { { 11, 12, 11, 12 }, { 9, 6, 9, 6 }, { 3, 10, 0, 14 }, { 11, 10, 2, 14 } };
+	int 
 	unsigned short **pLAB;
 
+	//Tableau alloué pour la "premire dimension" qui correspond à la ligne. Ex : première case du tableau correspond première ligne du labyrinthe
 	pLAB = malloc(LAB_L_FIX*sizeof(unsigned short));
 	if (pLAB == NULL)
 	{
 		fprintf(stderr, "Allocation impossible \n");
 		exit(EXIT_FAILURE);
 	}
+
+	//Un tableau est alloué pour chaque ligne, ce qui forme le tableau bidimensionnel
 	for (i = 0; i<sizeof(pLAB); i++){
 		*(pLAB + i) = malloc(LAB_C_FIX*sizeof(unsigned short));
 		if (*(pLAB + i) == NULL)
@@ -22,6 +27,8 @@ unsigned short** initTab2DFixed(){
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	//Remplissage du tableau bidimensionnel avec les valeurs fixées au départ.
 	for (i = 0; i<sizeof(pLAB); i++){
 		for (j = 0; j < sizeof(*(pLAB + i)); j++){
 			pLAB[i][j] = tab2Dfixe[i][j];
@@ -32,10 +39,14 @@ unsigned short** initTab2DFixed(){
 }
 
 
-struct Labyrinthe createFixedLab(struct Labyrinthe lab, int i, int column){
+struct Labyrinthe createFixedLab(struct Labyrinthe lab, int i, int column,int xe,int ye, int xs,int ys){
 	lab.l = i;
 	lab.c = column;
 	lab.tab2D = initTab2DFixed();
+	lab.xentrer = xe;
+	lab.yentrer = ye;
+	lab.xsortie = xs;
+	lab.ysortie = ys;
 	return lab;
 }
 
@@ -58,9 +69,10 @@ void affMurD(){
 }
 
 
-
+//Affichage du Labyrinthe
 void afficherLab(struct Labyrinthe lab){
 	int i=0, j=0;
+	//test
 	for(i=0;i<sizeof(lab.tab2D);i++){
 		for(j=0;j<sizeof(*lab.tab2D);j++){
 			printf("%d\t",lab.tab2D[i][j]);
@@ -69,9 +81,10 @@ void afficherLab(struct Labyrinthe lab){
 			}
 		}
 	}
-	if (sizeof(lab.tab2D)>1&&sizeof(*lab.tab2D)>1){
+	
+	if (sizeof(lab.tab2D)>1&&sizeof(lab.tab2D[0])>1){
 		for(i=0;i<sizeof(lab.tab2D);i++){
-			for(j=0;j<sizeof(*lab.tab2D);j++){
+			for(j=0;j<sizeof(lab.tab2D[i]);j++){
 				printf("+");
 				if(lab.tab2D[i][j]>>3&1){
 					affMurH();
@@ -89,12 +102,17 @@ void afficherLab(struct Labyrinthe lab){
 
 				}
 			}
-			for(j=0;j<sizeof(*lab.tab2D);j++){
+			for(j=0;j<sizeof(lab.tab2D[i]);j++){
 				if(lab.tab2D[i][j]&1){
 					affMurG();
-					printf("   ");
 				} else {
 					printf(" ");
+				}
+				if (i == lab.xentrer && j == lab.yentrer){
+					printf(" E ");
+				} else if (i == lab.xsortie && j == lab.ysortie){
+					printf(" S ");
+				}else {
 					printf("   ");
 				}
 				if(j==sizeof(*lab.tab2D)-1){
@@ -145,42 +163,42 @@ struct Labyrinthe createRandomLab(struct Labyrinthe lab){
 }
 
 struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/){
-	int **tab; // pointeur
-	int hauteur; // hauteur de la matrice
+	unsigned short **tab; // pointeur
+	int l; // nombre de ligne de la matrice
 	int i=0;
-	int largeur; // largeur de la matrice
+	int c; // nombre de colonne de la matrice
 	int j=0; 
 	int xentrer, yentrer, xsortie, ysortie;
-	int c;
+	
 	FILE *fichier;
 
 	// ouverture du ficher texte
-	fichier = fopen("U:\\GitProjectC\\matrice.txt", "r");
+	fichier = fopen("matrice.txt", "r");
 	if(fichier == NULL)	//test d'ouverture du fichier
 		printf("erreur de fichier\n");
 
 	// recuperation taille et position entrer & sortie
-	fscanf(fichier, "%d %d %d %d %d %d", &largeur, &hauteur, &xentrer, &yentrer, &xsortie, &ysortie);
+	fscanf(fichier, "%d %d %d %d %d %d", &c, &l, &xentrer, &yentrer, &xsortie, &ysortie);
 
 	lab.xentrer = xentrer;
 	lab.yentrer = yentrer;
 	lab.xsortie = xsortie;
 	lab.ysortie = ysortie;
-	lab.l = hauteur;
-	lab.c = largeur;
+	lab.l = l;
+	lab.c = c;
 
 	// declaration du tableau 2D
 	
-	tab = malloc(hauteur*sizeof(int*));
+	tab = (unsigned short**)malloc(l*sizeof(unsigned short*));
 	if (tab == NULL)
 		printf("erreur de tableau1\n");
 	for(i=0;i<lab.l;i++) {
-		tab[i] = malloc(lab.c*sizeof(int));
+		tab[i] = (unsigned short *)malloc(lab.c*sizeof(unsigned short));
 		if (tab[i] == NULL)
 			printf("erreur de tableau2\n");
 		}
 
-	// lecture
+	// Remplissage du tableau bidimensionnel à partir du fichier (lecture)
 	for(i=0; i < lab.l; i++) {
 		for(j=0; j < lab.c; j++) {
 			fscanf(fichier, "%d", &tab[i][j]);
@@ -188,25 +206,5 @@ struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/
 	}
 
 	lab.tab2D = tab;
-
-	//affichage
-/*	printf("labyrinthe de dimension %d X %d\n", largeur, hauteur);
-	printf("donnees dans le fichier .txt :\n");
-	for (i = 0; i<hauteur; i++) {
-		for (j = 0; j < largeur; j++) {
-		printf("%d ", tab[i][j]);
-		}
-	printf("\n");
-	}
-	printf("position entrer (%d;%d)\n", xentrer, yentrer);
-	printf("position sortie (%d;%d)\n", xsortie, ysortie);*/
-
-	// fermeture
-	/*fclose(fichier);
-	for(i=0;i<hauteur;i++) {
-		free(tab[i]);
-		}
-	free(tab);*/
-
 	return lab;
 }

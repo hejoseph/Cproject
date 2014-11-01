@@ -25,7 +25,7 @@ void afficherLab(struct Labyrinthe lab);
 
 
 
-struct Labyrinthe createFixedLab(struct Labyrinthe lab, int line, int column);
+struct Labyrinthe createFixedLab(struct Labyrinthe lab, int line, int column, int xe,int ye,int xs,int ys);
 
 struct Labyrinthe createRandomLab(struct Labyrinthe lab);
 

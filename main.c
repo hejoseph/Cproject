@@ -14,12 +14,13 @@ int main(void){
 	int i = 0, j = 0;
 	int choix;
 	struct Labyrinthe lab = {NULL,0,0};
-	do{
+	//do{
 		MenuDisplay();
-		scanf("%d",&choix);
-		switch(choix) {
+	//	scanf("%d",&choix);
+		switch(2) {
 			case 1 :
-				lab = createFixedLab(lab,LAB_L_FIX, LAB_C_FIX);
+				//Création du labyrinthe fixe, puis affichage
+				lab = createFixedLab(lab,LAB_L_FIX, LAB_C_FIX,0,0,3,3);
 				afficherLab(lab);
 				break;
 			case 2 : 
@@ -39,6 +40,6 @@ int main(void){
 			default :
 				printf("Le numero du menu est incorrect !\n");
 		}
-	}while(choix<1 || choix>4);
+//	}while(choix<1 || choix>4);
 
 }
