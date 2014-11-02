@@ -2,40 +2,54 @@
 #include <stdlib.h>
 #include "labyrinthe.h"
 
-//Initialisation d'un tableau 2 dimension à valeur fixe
-unsigned short** initTab2DFixed(){
-	int i = 0, j = 0;
-	//Valeur fixé
-	unsigned short tab2Dfixe[LAB_C_FIX][LAB_L_FIX] = { { 11, 12, 11, 12 }, { 9, 6, 9, 6 }, { 3, 10, 0, 14 }, { 11, 10, 2, 14 } };
-	int 
-	unsigned short **pLAB;
 
-	//Tableau alloué pour la "premire dimension" qui correspond à la ligne. Ex : première case du tableau correspond première ligne du labyrinthe
-	pLAB = malloc(LAB_L_FIX*sizeof(unsigned short));
-	if (pLAB == NULL)
+void allocationL(unsigned short ***p, int size){
+	*p = malloc(size*sizeof(unsigned short));
+	if (*p == NULL)
 	{
-		fprintf(stderr, "Allocation impossible \n");
+		fprintf(stderr, "\n\n !!!!!!!!!  Allocation impossible !!!!!!!!!!!! \n\n");
+		system("pause");
 		exit(EXIT_FAILURE);
 	}
+}
 
-	//Un tableau est alloué pour chaque ligne, ce qui forme le tableau bidimensionnel
-	for (i = 0; i<sizeof(pLAB); i++){
-		*(pLAB + i) = malloc(LAB_C_FIX*sizeof(unsigned short));
-		if (*(pLAB + i) == NULL)
+void allocationC(unsigned short **p, int size){
+	int i = 0;
+	for (i = 0; i < size; i++){
+		p[i] = malloc(size*sizeof(unsigned short));
+		if (p[i] == NULL)
 		{
-			fprintf(stderr, "Allocation impossible \n");
+			fprintf(stderr, "\n\n !!!!!!!!!  Allocation impossible !!!!!!!!!!!! \n\n");
+			system("pause");
 			exit(EXIT_FAILURE);
 		}
 	}
+}
+
+//Allocation du tableau 2 dimension, avec en paramètre le nombre de ligne et de colonne.
+void tabAlloc(unsigned short ***p, int ligne, int colonne){
+	allocationL(p, ligne);
+	allocationC(*p, colonne);
+}
+
+//Initialisation d'un tableau 2 dimension à valeur fixe
+unsigned short** initTab2DFixed(){
+	int i = 0, j = 0;
+	int l = LAB_L_FIX;
+	int c = LAB_C_FIX;
+	//Valeur fixé
+	unsigned short tab2Dfixe[LAB_L_FIX][LAB_C_FIX] = { { 11, 12, 11, 12 }, { 9, 6, 9, 6 }, { 3, 10, 0, 14 }, { 11, 10, 2, 14 } };
+	unsigned short **pTab = NULL;
+
+	tabAlloc(&pTab, LAB_L_FIX, LAB_C_FIX);
 
 	//Remplissage du tableau bidimensionnel avec les valeurs fixées au départ.
-	for (i = 0; i<sizeof(pLAB); i++){
-		for (j = 0; j < sizeof(*(pLAB + i)); j++){
-			pLAB[i][j] = tab2Dfixe[i][j];
+	for (i = 0; i<l ; i++){
+		for (j = 0; j < c; j++){
+			pTab[i][j] = tab2Dfixe[i][j];
 		}
 	}
-
-	return pLAB;
+	return pTab;
 }
 
 
@@ -50,10 +64,8 @@ struct Labyrinthe createFixedLab(struct Labyrinthe lab, int i, int column,int xe
 	return lab;
 }
 
-void affMurH(){
-	
+void affMurH(){	
 	printf("---");
-
 }
 
 void affMurB(){
@@ -67,42 +79,44 @@ void affMurG(){
 void affMurD(){
 	printf("|");
 }
-
+void affSommet(){
+	printf("+");
+}
 
 //Affichage du Labyrinthe
 void afficherLab(struct Labyrinthe lab){
 	int i=0, j=0;
 	//test
-	for(i=0;i<sizeof(lab.tab2D);i++){
-		for(j=0;j<sizeof(*lab.tab2D);j++){
+	for(i=0;i<lab.l;i++){
+		for(j=0;j<lab.c;j++){
 			printf("%d\t",lab.tab2D[i][j]);
-			if(j==sizeof(*lab.tab2D)-1){
+			if(j==lab.c-1){
 				printf("\n");
 			}
 		}
 	}
 	
-	if (sizeof(lab.tab2D)>1&&sizeof(lab.tab2D[0])>1){
-		for(i=0;i<sizeof(lab.tab2D);i++){
-			for(j=0;j<sizeof(lab.tab2D[i]);j++){
-				printf("+");
+	if (lab.l>1&&lab.c>1){
+		for(i=0;i<lab.l;i++){
+			for(j=0;j<lab.c;j++){
+				affSommet();
 				if(lab.tab2D[i][j]>>3&1){
 					affMurH();
-					if(j==sizeof(*lab.tab2D)-1){
-						printf("+");
+					if(j==lab.c-1){
+						affSommet();
 					}
 				}else {
 					printf("   ");
-					if(j==sizeof(*lab.tab2D)-1){
-						printf("+");
+					if(j==lab.c-1){
+						affSommet();
 					}
 				}
-				if(j==sizeof(*lab.tab2D)-1){
+				if(j==lab.c-1){
 					printf("\n");
 
 				}
 			}
-			for(j=0;j<sizeof(lab.tab2D[i]);j++){
+			for(j=0;j<lab.c;j++){
 				if(lab.tab2D[i][j]&1){
 					affMurG();
 				} else {
@@ -115,17 +129,17 @@ void afficherLab(struct Labyrinthe lab){
 				}else {
 					printf("   ");
 				}
-				if(j==sizeof(*lab.tab2D)-1){
+				if(j==lab.c-1){
 					affMurD();
 					printf("\n");
 				}
 			}
-			if(i==sizeof(lab.tab2D)-1){
-				for(j=0;j<sizeof(*lab.tab2D);j++){
-					printf("+");
+			if(i==lab.l-1){
+				for(j=0;j<lab.c;j++){
+					affSommet();
 					affMurB();
-					if(j==sizeof(*lab.tab2D)-1){
-						printf("+");
+					if(j==lab.c-1){
+						affSommet();
 					}
 				}
 			}
@@ -133,33 +147,165 @@ void afficherLab(struct Labyrinthe lab){
 	}
 }
 
+
+//Génère un nombre entre a et b
+unsigned short genNbBetween(int a, int b){
+	b = b + 1;
+	int r = (rand() % b);
+	while (r<a){
+		r = (rand() % b);
+	}
+	return r;
+}
+
+//Génère un nombre aléatoire.
+unsigned short genRandNb(int i, int j, unsigned short ** pTab, int ligne, int colonne){
+	int r = 0;
+	if (i==0){
+		if (j == 0){
+			while (!(r&1 && r>>3&1)){
+				r = genNbBetween(9, 13);
+			}
+		} else if (j == colonne - 1){
+			if (pTab[i][j-1]>>2 & 1){
+				r = 13;
+			}
+			while (!(r>>2 & 1 && r >> 3 & 1)){
+				r = genNbBetween(12, 14);
+				r = r & 14;
+			}
+		} else {
+			if (pTab[i][j - 1] >> 2 & 1){
+				while (!(r & 1 && r >> 3 & 1)){
+					r = genNbBetween(9, 13);
+				}
+			}
+			while (!(r >>3 & 1)){
+				r = genNbBetween(8, 14);
+				r = r & 14;
+			}
+		}
+	} else if (i == ligne - 1) {
+		if (j == 0){
+			if (pTab[i - 1][j] >> 1 & 1){
+				r = 11;
+			}
+			while (!(r & 1 && r >> 1 & 1)){
+				r = genNbBetween(3, 7);
+				r = r & 7;
+			}
+		} else if (j == colonne - 1){
+			if (pTab[i - 1][j] >> 1 & 1 && pTab[i][j-1] >> 2 & 1){
+				r = 15;
+			} else if (pTab[i - 1][j] >> 1 & 1 ){
+				r = 14;
+			} else if (pTab[i][j - 1] >> 2 & 1){
+				r = 7;
+			} else {
+				r = 6;
+			}
+		} else {
+			if (pTab[i - 1][j] >> 1 & 1 && pTab[i][j - 1] >> 2 & 1){
+				r = 11;
+			} else if (pTab[i - 1][j] >> 1 & 1){
+				while (!(r>>3 & 1 && r>>1&1)){
+					r = genNbBetween(10, 14);
+					r = r & 14;
+				}
+			} else if (pTab[i][j - 1] >> 2 & 1){
+				while (!(r & 1 && r >> 1 & 1)){
+					r = genNbBetween(3, 7);
+					r = r & 7;
+				}
+			} else {
+				while (!(r >> 1 & 1)){
+					r = genNbBetween(2, 6);
+					r = r & 6;
+				}
+			}
+		}
+	} else {
+		if (j == 0){
+			if (pTab[i - 1][j] >> 1 & 1){
+				while (!(r & 1 && r >> 3 & 1)){
+					r = genNbBetween(9, 13);
+				}
+			} else {
+				while (!(r & 1)){
+					r = genNbBetween(1, 7);
+					r = r & 7;
+				}
+			}
+			
+		} else if (j == colonne - 1){
+			if (pTab[i - 1][j] >> 1 & 1 && pTab[i][j - 1] >> 2 & 1){
+				r = 13;
+			} else if (pTab[i - 1][j] >> 1 & 1){
+				while (!(r>>2 & 1 && r >> 3 & 1)){
+					r = genNbBetween(12, 14);
+					r = r & 14;
+				}
+			} else if (pTab[i][j - 1] >> 2 & 1){
+				while (!(r & 1 && r >> 2 & 1)){
+					r = genNbBetween(5, 7);
+					r = r & 7;
+				}
+			} else {
+				while (!( r >> 2 & 1)){
+					r = genNbBetween(4, 6);
+					r = r & 6;
+				}
+			}
+		} else {
+			if (pTab[i - 1][j] >> 1 & 1 && pTab[i][j - 1] >> 2 & 1){
+				while (!(r >> 3 & 1 && r & 1)){
+					r = genNbBetween(9, 13);
+				}
+			} else if (pTab[i - 1][j] >> 1 & 1){
+				while (!(r >> 3 & 1 )){
+					r = genNbBetween(8, 14);
+					r = r & 14;
+				}
+			} else if (pTab[i][j - 1] >> 2 & 1){
+				while (!(r & 1 )){
+					r = genNbBetween(1, 7);
+					r = r & 7;
+				}
+			} else {
+			//	while (!(r & 0 && r>>3 & 0)){
+					r = genNbBetween(0, 6);
+					r = r & 6;
+		//		}
+			}
+		}
+	}
+
+	return r;
+}
+
 unsigned short ** initTab2DRandom(int l, int c){
 	int i =0,j = 0;
 	unsigned short ** pTab2D;
-	pTab2D = malloc(l*sizeof(unsigned short));
-	if (pTab2D == NULL)
-	{
-		fprintf(stderr, "Allocation impossible \n");
-		exit(EXIT_FAILURE);
-	}
-	pTab2D = malloc(c*sizeof(unsigned short));
-	if (pTab2D == NULL)
-	{
-		fprintf(stderr, "Allocation impossible \n");
-		exit(EXIT_FAILURE);
+	tabAlloc(&pTab2D,l,c);
+	for (i = 0; i < l; i++){
+		for (j = 0; j < c; j++){
+			pTab2D[i][j] = genRandNb(i,j,pTab2D, l, c);
+		}
 	}
 
-	for(i=0;i<sizeof(pTab2D);i++){
-
-	}
+	return pTab2D;
 }
 
 struct Labyrinthe createRandomLab(struct Labyrinthe lab){
-	lab.c=4;
-	lab.l=4;
+	lab.xentrer = 0;
+	lab.yentrer = 0;
+	lab.xsortie = lab.l-1;
+	lab.ysortie = lab.c-1;
 	if(lab.c>1&&lab.l>1){
 		lab.tab2D = initTab2DRandom(lab.l,lab.c);
 	}
+
+	return lab;
 }
 
 struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/){
@@ -188,23 +334,22 @@ struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/
 	lab.c = c;
 
 	// declaration du tableau 2D
-	
-	tab = (unsigned short**)malloc(l*sizeof(unsigned short*));
+	tabAlloc(&tab, lab.l, lab.c);
+	/*tab = (unsigned short**)malloc(l*sizeof(unsigned short*));
 	if (tab == NULL)
 		printf("erreur de tableau1\n");
 	for(i=0;i<lab.l;i++) {
 		tab[i] = (unsigned short *)malloc(lab.c*sizeof(unsigned short));
 		if (tab[i] == NULL)
 			printf("erreur de tableau2\n");
-		}
+		}*/
 
-	// Remplissage du tableau bidimensionnel à partir du fichier (lecture)
+	// Remplissage du tableau bidimensionnel à partir du fichier texte (lecture)
 	for(i=0; i < lab.l; i++) {
 		for(j=0; j < lab.c; j++) {
 			fscanf(fichier, "%d", &tab[i][j]);
 		}
 	}
-
 	lab.tab2D = tab;
 	return lab;
 }

@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include "labyrinthe.h"
 
 void MenuDisplay(){
@@ -10,14 +13,15 @@ void MenuDisplay(){
 	printf("4-Quitter le programme\n");
 }
 
+
 int main(void){
 	int i = 0, j = 0;
 	int choix;
 	struct Labyrinthe lab = {NULL,0,0};
-	//do{
+	do{
 		MenuDisplay();
-	//	scanf("%d",&choix);
-		switch(2) {
+		scanf("%d",&choix);
+		switch(3) {
 			case 1 :
 				//Création du labyrinthe fixe, puis affichage
 				lab = createFixedLab(lab,LAB_L_FIX, LAB_C_FIX,0,0,3,3);
@@ -31,8 +35,15 @@ int main(void){
 				afficherLab(lab);
 				break;
 			case 3 :
-				lab = createRandomLab(lab);
-				//afficherLab(lab);
+				while (1){
+					printf("Nombre de ligne ? \n");
+					scanf("%d", &lab.l);
+					printf("Nombre de colonne ? \n");
+					scanf("%d", &lab.c);
+					lab = createRandomLab(lab);
+					afficherLab(lab);
+					printf("\n\n\n\n\n");
+				}
 				break;
 			case 4 : 
 				exit(0);
@@ -40,6 +51,6 @@ int main(void){
 			default :
 				printf("Le numero du menu est incorrect !\n");
 		}
-//	}while(choix<1 || choix>4);
+	}while(choix<1 || choix>4);
 
 }
