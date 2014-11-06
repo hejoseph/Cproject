@@ -17,6 +17,8 @@ struct Labyrinthe{
 	int yentrer;
 	int xsortie;
 	int ysortie;
+	int xsearcher;
+	int ysearcher;
 };
 
 
@@ -30,5 +32,7 @@ struct Labyrinthe createFixedLab(struct Labyrinthe lab, int line, int column, in
 struct Labyrinthe createRandomLab(struct Labyrinthe lab);
 
 struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/);
+
+void afficherPath(struct Labyrinthe lab);
 
 #endif

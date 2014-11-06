@@ -61,6 +61,8 @@ struct Labyrinthe createFixedLab(struct Labyrinthe lab, int i, int column,int xe
 	lab.yentrer = ye;
 	lab.xsortie = xs;
 	lab.ysortie = ys;
+	lab.xsearcher = lab.xentrer;
+	lab.ysearcher = lab.yentrer;
 	return lab;
 }
 
@@ -150,8 +152,9 @@ void afficherLab(struct Labyrinthe lab){
 
 //Génère un nombre entre a et b
 unsigned short genNbBetween(int a, int b){
+	int r;
 	b = b + 1;
-	int r = (rand() % b);
+	r = (rand() % b);
 	while (r<a){
 		r = (rand() % b);
 	}
@@ -160,6 +163,7 @@ unsigned short genNbBetween(int a, int b){
 
 //Génère un nombre aléatoire.
 unsigned short genRandNb(int i, int j, unsigned short ** pTab, int ligne, int colonne){
+
 	int r = 0;
 	if (i==0){
 		if (j == 0){
@@ -352,4 +356,47 @@ struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/
 	}
 	lab.tab2D = tab;
 	return lab;
+}
+
+void flipBit(unsigned short * n, int range){
+	unsigned short mask;
+	mask = 1<<range-1;
+	*n = *n^mask;
+}
+
+//9ème bit sert à indiquer que la cellule est déjà visitée
+void visited(unsigned short * n){
+	unsigned short mask;
+	mask = 1<<8;
+	*n=*n|mask;
+}
+
+
+unsigned short moves(int i, struct Labyrinthe * lab){
+	if(i==4){
+		lab->xsearcher = lab->xsearcher-1;
+	}
+	if(i==3){
+		lab->ysearcher = lab->ysearcher+1;
+	}
+	if(i==2){
+		lab->xsearcher = lab->xsearcher+1;
+	}
+	if(i==1){
+		lab->ysearcher = lab->ysearcher-1;
+	}
+	return lab->tab2D[lab->xsearcher][lab->ysearcher];
+}
+
+void researchAllPath(struct Labyrinthe lab, unsigned short sommet){
+	int i = 0;
+	for(i=4;i>0;i--){
+		if(!(sommet>>i-1 & 1)){
+			researchAllPath(lab,moves(i,&lab));
+		}
+	}
+}
+
+void afficherPath(struct Labyrinthe lab){
+	researchAllPath(lab, lab.tab2D[lab.xsearcher][lab.ysearcher]);
 }
