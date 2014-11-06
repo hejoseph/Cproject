@@ -129,7 +129,11 @@ void afficherLab(struct Labyrinthe lab){
 				} else if (i == lab.xsortie && j == lab.ysortie){
 					printf(" S ");
 				}else {
-					printf("   ");
+					if (lab.tab2D[i][j] >> 8 & 1){
+						printf(" X ");
+					} else {
+						printf("   ");
+					}
 				}
 				if(j==lab.c-1){
 					affMurD();
@@ -367,36 +371,94 @@ void flipBit(unsigned short * n, int range){
 //9ème bit sert à indiquer que la cellule est déjà visitée
 void visited(unsigned short * n){
 	unsigned short mask;
-	mask = 1<<8;
+	mask = 1<<9;
 	*n=*n|mask;
 }
 
+void virtualWall(){
+
+}
 
 unsigned short moves(int i, struct Labyrinthe * lab){
 	if(i==4){
 		lab->xsearcher = lab->xsearcher-1;
+		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 5);
 	}
 	if(i==3){
 		lab->ysearcher = lab->ysearcher+1;
+		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 4);
 	}
 	if(i==2){
 		lab->xsearcher = lab->xsearcher+1;
+		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 7);
 	}
 	if(i==1){
 		lab->ysearcher = lab->ysearcher-1;
+		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 6);
 	}
+	lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 8);
 	return lab->tab2D[lab->xsearcher][lab->ysearcher];
+}
+
+void moveReverse(int i , struct Labyrinthe * lab){
+	if (i == 4){
+		lab->xsearcher = lab->xsearcher + 1;
+	}
+	if (i == 3){
+		lab->ysearcher = lab->ysearcher - 1;
+	}
+	if (i == 2){
+		lab->xsearcher = lab->xsearcher - 1;
+	}
+	if (i == 1){
+		lab->ysearcher = lab->ysearcher +1;
+	}
+}
+
+int isVisited(unsigned short a){
+	return a >> 9 & 1;
+}
+
+unsigned short getValueBeforeMoving(int i, struct Labyrinthe lab){
+	if (i == 4){
+		lab.xsearcher = lab.xsearcher - 1;
+	}
+	if (i == 3){
+		lab.ysearcher = lab.ysearcher + 1;
+	}
+	if (i == 2){
+		lab.xsearcher = lab.xsearcher + 1;
+	}
+	if (i == 1){
+		lab.ysearcher = lab.ysearcher - 1;
+	}
+	return lab.tab2D[lab.xsearcher][lab.ysearcher];
 }
 
 void researchAllPath(struct Labyrinthe lab, unsigned short sommet){
 	int i = 0;
+	unsigned short val = 0;
+	int j = 4;
+	if (lab.xsearcher == 3 && lab.ysearcher ==2){
+		printf("\n");
+	}
+	visited(&lab.tab2D[lab.xsearcher][lab.ysearcher]);
 	for(i=4;i>0;i--){
+	
 		if(!(sommet>>i-1 & 1)){
-			researchAllPath(lab,moves(i,&lab));
+			if (!(sommet >> i +j - 1 & 1)){
+				val = getValueBeforeMoving(i,lab);
+				if (!(isVisited(val))){
+					researchAllPath(lab, moves(i, &lab));
+					moveReverse(i, &lab);
+				}
+			}
 		}
 	}
+	
 }
 
 void afficherPath(struct Labyrinthe lab){
 	researchAllPath(lab, lab.tab2D[lab.xsearcher][lab.ysearcher]);
+	afficherLab(lab);
 }

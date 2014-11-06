@@ -20,11 +20,12 @@ int main(void){
 //	do{
 		MenuDisplay();
 //		scanf("%d",&choix);
-		switch(1) {
+		switch(3) {
 			case 1 :
 				//Création du labyrinthe fixe, puis affichage
 				lab = createFixedLab(lab,LAB_L_FIX, LAB_C_FIX,0,0,3,3);
 				afficherLab(lab);
+				printf("\n\n\n");
 				afficherPath(lab);
 				break;
 			case 2 : 
@@ -43,6 +44,7 @@ int main(void){
 					lab = createRandomLab(lab);
 					afficherLab(lab);
 					printf("\n\n\n\n\n");
+					afficherPath(lab);
 				}
 				break;
 			case 4 : 
