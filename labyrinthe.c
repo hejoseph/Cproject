@@ -147,6 +147,7 @@ void afficherLab(struct Labyrinthe lab, int menu){
 				}
 				if(j==lab.c-1){
 					affMurD();
+					printf("  %d",i);
 					printf("\n");
 				}
 			}
@@ -158,6 +159,20 @@ void afficherLab(struct Labyrinthe lab, int menu){
 						affSommet();
 					}
 				}
+			}
+		}
+	}
+	printf("\n");
+	for (i = 0; i < lab.c; i++){
+		printf("  %d ",i);
+	}
+	printf("\n ligne = %d\n colonne = %d\n",lab.xsearcher,lab.ysearcher);
+	printf("\n\n");
+	for (i = 0; i<lab.l; i++){
+		for (j = 0; j<lab.c; j++){
+			printf("%d\t", lab.tab2D[i][j] >> 10);
+			if (j == lab.c - 1){
+				printf("\n");
 			}
 		}
 	}
@@ -385,27 +400,39 @@ void visited(unsigned short * n){
 	*n=*n|mask;
 }
 
-void virtualWall(){
-
+void reset_virtual_wall(struct Labyrinthe * lab){
+	unsigned short mask = 0, a = 0, b = 0;
+	mask = ~mask;
+	a = mask >> 8;
+	b = mask << 4;
+	mask = a & b;
+	mask = ~mask;
+	lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] & mask;
 }
 
 unsigned short moves(int i, struct Labyrinthe * lab){
+	
 	if(i==4){
 		lab->xsearcher = lab->xsearcher-1;
+		reset_virtual_wall(lab);
 		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 5);
 	}
 	if(i==3){
 		lab->ysearcher = lab->ysearcher+1;
+		reset_virtual_wall(lab);
 		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 4);
 	}
 	if(i==2){
 		lab->xsearcher = lab->xsearcher+1;
+		reset_virtual_wall(lab);
 		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 7);
 	}
 	if(i==1){
 		lab->ysearcher = lab->ysearcher-1;
+		reset_virtual_wall(lab);
 		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 6);
 	}
+
 	lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 8);
 	return lab->tab2D[lab->xsearcher][lab->ysearcher];
 }
@@ -446,8 +473,17 @@ unsigned short getVoisinVal(int i, struct Labyrinthe lab){
 }
 
 void setDistance(struct Labyrinthe * lab, unsigned short dist){
+	unsigned short mask = 0;
+	mask = ~mask;
+	mask = mask >> 6;
+	//reset distance to 0
+	lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] & mask;
 	dist = dist << 10;
 	lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] + dist;
+}
+
+unsigned short getDistance(unsigned short a){
+	return a >> 10;
 }
 
 void researchAllPath(struct Labyrinthe lab, unsigned short sommet, unsigned short dist){
@@ -457,26 +493,34 @@ void researchAllPath(struct Labyrinthe lab, unsigned short sommet, unsigned shor
 	unsigned short val = 0;
 	int j = 4;
 	//visited(&lab.tab2D[lab.xsearcher][lab.ysearcher]);
-	if (lab.xsearcher == lab.xsortie && lab.ysearcher == lab.ysortie){
+//	if (lab.xsearcher == lab.xsortie && lab.ysearcher == lab.ysortie){
 		if (dist < (lab.tab2D[lab.xsearcher][lab.ysearcher] >> 10)){
 			setDistance(&lab, dist);
 		}
-		if ((lab.tab2D[lab.xsearcher][lab.ysearcher] >> 10) == 0){
-			setDistance(&lab, dist);
+		if (lab.xsearcher != lab.xentrer || lab.ysearcher != lab.yentrer){
+			if ((lab.tab2D[lab.xsearcher][lab.ysearcher] >> 10) == 0){
+				setDistance(&lab, dist);
+			}
 		}
-	} else {
+		
+/*	} else {
 		setDistance(&lab, dist);
-	}
-	
+	}*/
+//	afficherLab(lab, 1);
 //	afficherLab(lab,1);
 	for(i=4;i>0;i--){
-	
+		if (sommet == 4577){
+			sommet = 4577;
+		}
+	//sommet = 4577
 		if(!(sommet>>i-1 & 1)){
 			if (!(sommet >> i +j - 1 & 1)){
 				val = getVoisinVal(i,lab);
-				if (!(isVisited(val))){
+//				if (!(isVisited(val))){
+				if (getDistance(val) == 0 || dist < getDistance(val)){
 					dist++;
 					voisin = moves(i, &lab);
+					afficherLab(lab,1);
 					researchAllPath(lab, voisin, dist);
 					dist--;
 					moveReverse(i, &lab);
@@ -487,9 +531,7 @@ void researchAllPath(struct Labyrinthe lab, unsigned short sommet, unsigned shor
 	
 }
 
-unsigned short getDistance(unsigned short a){
-	return a >> 10;
-}
+
 
 void setSearcher(struct Labyrinthe * lab, int i	){
 	if (i == 4){

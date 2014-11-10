@@ -30,10 +30,10 @@ int main(void){
 	int i = 0, j = 0;
 	int choix;
 	struct Labyrinthe lab = {NULL,0,0};
-	do{
+//	do{
 		main_menu();
-		scanf("%d",&choix);
-		switch(choix) {
+//		scanf("%d",&choix);
+		switch(3) {
 			case 1 :
 					//Création du labyrinthe fixe, puis affichage
 					lab = createFixedLab(lab, LAB_L_FIX, LAB_C_FIX, 0, 0, 3, 3);
@@ -86,6 +86,7 @@ int main(void){
 					scanf("%d", &lab.c);
 					lab = createRandomLab(lab);
 					afficherLab(lab,0);
+					
 					researchPath(lab);
 					printf("\n\n\n\n\n");
 					do{
@@ -110,6 +111,6 @@ int main(void){
 				printf("Le numero du menu est incorrect !\n");
 				break;
 		}
-	}while(1);
+//	}while(1);
 
 }
