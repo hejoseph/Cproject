@@ -61,8 +61,6 @@ struct Labyrinthe createFixedLab(struct Labyrinthe lab, int i, int column,int xe
 	lab.yentrer = ye;
 	lab.xsortie = xs;
 	lab.ysortie = ys;
-	lab.xsearcher = lab.xentrer;
-	lab.ysearcher = lab.yentrer;
 	return lab;
 }
 
@@ -86,9 +84,10 @@ void affSommet(){
 }
 
 //Affichage du Labyrinthe
-void afficherLab(struct Labyrinthe lab){
+void afficherLab(struct Labyrinthe lab, int menu){
 	int i=0, j=0;
 	//test
+	printf("\n\n");
 	for(i=0;i<lab.l;i++){
 		for(j=0;j<lab.c;j++){
 			printf("%d\t",lab.tab2D[i][j]);
@@ -129,11 +128,22 @@ void afficherLab(struct Labyrinthe lab){
 				} else if (i == lab.xsortie && j == lab.ysortie){
 					printf(" S ");
 				}else {
-					if (lab.tab2D[i][j] >> 8 & 1){
-						printf(" X ");
-					} else {
+					if (menu == 0){
 						printf("   ");
+					} else if (menu == 1){
+						if (lab.tab2D[i][j] >> 8 & 1){
+							printf(" X ");
+						} else {
+							printf("   ");
+						}
+					} else {
+						if (lab.tab2D[i][j] >> 9 & 1){
+							printf(" O ");
+						} else {
+							printf("   ");
+						}
 					}
+					
 				}
 				if(j==lab.c-1){
 					affMurD();
@@ -416,10 +426,10 @@ void moveReverse(int i , struct Labyrinthe * lab){
 }
 
 int isVisited(unsigned short a){
-	return a >> 9 & 1;
+	return a >> 8 & 1;
 }
 
-unsigned short getValueBeforeMoving(int i, struct Labyrinthe lab){
+unsigned short getVoisinVal(int i, struct Labyrinthe lab){
 	if (i == 4){
 		lab.xsearcher = lab.xsearcher - 1;
 	}
@@ -435,21 +445,40 @@ unsigned short getValueBeforeMoving(int i, struct Labyrinthe lab){
 	return lab.tab2D[lab.xsearcher][lab.ysearcher];
 }
 
-void researchAllPath(struct Labyrinthe lab, unsigned short sommet){
+void setDistance(struct Labyrinthe * lab, unsigned short dist){
+	dist = dist << 10;
+	lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] + dist;
+}
+
+void researchAllPath(struct Labyrinthe lab, unsigned short sommet, unsigned short dist){
 	int i = 0;
+	unsigned short sommet1 = 0;
+	unsigned short voisin = 0;
 	unsigned short val = 0;
 	int j = 4;
-	if (lab.xsearcher == 3 && lab.ysearcher ==2){
-		printf("\n");
+	//visited(&lab.tab2D[lab.xsearcher][lab.ysearcher]);
+	if (lab.xsearcher == lab.xsortie && lab.ysearcher == lab.ysortie){
+		if (dist < (lab.tab2D[lab.xsearcher][lab.ysearcher] >> 10)){
+			setDistance(&lab, dist);
+		}
+		if ((lab.tab2D[lab.xsearcher][lab.ysearcher] >> 10) == 0){
+			setDistance(&lab, dist);
+		}
+	} else {
+		setDistance(&lab, dist);
 	}
-	visited(&lab.tab2D[lab.xsearcher][lab.ysearcher]);
+	
+//	afficherLab(lab,1);
 	for(i=4;i>0;i--){
 	
 		if(!(sommet>>i-1 & 1)){
 			if (!(sommet >> i +j - 1 & 1)){
-				val = getValueBeforeMoving(i,lab);
+				val = getVoisinVal(i,lab);
 				if (!(isVisited(val))){
-					researchAllPath(lab, moves(i, &lab));
+					dist++;
+					voisin = moves(i, &lab);
+					researchAllPath(lab, voisin, dist);
+					dist--;
 					moveReverse(i, &lab);
 				}
 			}
@@ -458,7 +487,66 @@ void researchAllPath(struct Labyrinthe lab, unsigned short sommet){
 	
 }
 
-void afficherPath(struct Labyrinthe lab){
-	researchAllPath(lab, lab.tab2D[lab.xsearcher][lab.ysearcher]);
-	afficherLab(lab);
+unsigned short getDistance(unsigned short a){
+	return a >> 10;
+}
+
+void setSearcher(struct Labyrinthe * lab, int i	){
+	if (i == 4){
+		lab->xsearcher = lab->xsearcher - 1;
+	}
+	if (i == 3){
+		lab->ysearcher = lab->ysearcher + 1;
+	}
+	if (i == 2){
+		lab->xsearcher = lab->xsearcher + 1;
+	}
+	if (i == 1){
+		lab->ysearcher = lab->ysearcher - 1;
+	}
+}
+
+void setShortPath(struct Labyrinthe * lab){
+	flipBit(&lab->tab2D[lab->xsearcher][lab->ysearcher], 10);
+}
+
+void researchShortestPath(struct Labyrinthe lab){
+	int i = 0;
+	unsigned short dist_sommet = 0 ,dist_voisin = 0;
+	unsigned short sommet = 0;
+	while (!(lab.xsearcher == lab.xentrer && lab.ysearcher == lab.yentrer)){
+		sommet = lab.tab2D[lab.xsearcher][lab.ysearcher];
+		dist_sommet = getDistance(sommet);
+		for (i = 0; i < 4; i++){
+			if (!(sommet >> i & 1)){
+				dist_voisin = getDistance(getVoisinVal(i+1, lab));
+				if (dist_voisin == dist_sommet -1){
+					setSearcher(&lab, i+1);
+					setShortPath(&lab);
+					break;
+				}
+			}
+		}
+	}
+}
+
+int is_solved(struct Labyrinthe lab){
+	if (getDistance(lab.tab2D[lab.xsortie][lab.ysortie]) > 0){
+		return 1;
+	}
+	return 0;
+}
+
+void researchPath(struct Labyrinthe lab){
+	lab.xsearcher = lab.xentrer;
+	lab.ysearcher = lab.yentrer;
+	researchAllPath(lab, lab.tab2D[lab.xsearcher][lab.ysearcher], 0);
+
+	if (is_solved(lab)){
+		lab.xsearcher = lab.xsortie;
+		lab.ysearcher = lab.ysortie;
+		researchShortestPath(lab);
+	}
+	
+	
 }

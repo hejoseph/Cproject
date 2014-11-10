@@ -23,7 +23,7 @@ struct Labyrinthe{
 
 
 
-void afficherLab(struct Labyrinthe lab);
+void afficherLab(struct Labyrinthe lab, int menu);
 
 
 
@@ -33,6 +33,8 @@ struct Labyrinthe createRandomLab(struct Labyrinthe lab);
 
 struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/);
 
-void afficherPath(struct Labyrinthe lab);
+void researchPath(struct Labyrinthe lab);
+
+int is_solved(struct Labyrinthe lab);
 
 #endif
