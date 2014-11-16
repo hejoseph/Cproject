@@ -4,7 +4,7 @@
 
 
 void allocationL(unsigned short ***p, int size){
-	*p = malloc(size*sizeof(unsigned short));
+	*p = malloc(size*sizeof(unsigned short ));
 	if (*p == NULL)
 	{
 		fprintf(stderr, "\n\n !!!!!!!!!  Allocation impossible !!!!!!!!!!!! \n\n");
@@ -13,10 +13,10 @@ void allocationL(unsigned short ***p, int size){
 	}
 }
 
-void allocationC(unsigned short **p, int size){
+void allocationC(unsigned short **p, int colonne, int size){
 	int i = 0;
 	for (i = 0; i < size; i++){
-		p[i] = malloc(size*sizeof(unsigned short));
+		p[i] = malloc(colonne*sizeof(unsigned short));
 		if (p[i] == NULL)
 		{
 			fprintf(stderr, "\n\n !!!!!!!!!  Allocation impossible !!!!!!!!!!!! \n\n");
@@ -29,7 +29,7 @@ void allocationC(unsigned short **p, int size){
 //Allocation du tableau 2 dimension, avec en paramètre le nombre de ligne et de colonne.
 void tabAlloc(unsigned short ***p, int ligne, int colonne){
 	allocationL(p, ligne);
-	allocationC(*p, colonne);
+	allocationC(*p, colonne, ligne);
 }
 
 //Initialisation d'un tableau 2 dimension à valeur fixe
