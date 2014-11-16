@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include "labyrinthe.h"
 
+//Affichage du menu principal
 void main_menu(){
 	printf("\n\nEntrez le numero de menu : \n");
 	printf("1-Afficher un labyrinthe fixe\n");
@@ -12,6 +13,7 @@ void main_menu(){
 	printf("4-Quitter le programme\n\n");
 }
 
+//Affichage du sous-menu
 void sub_menu(struct Labyrinthe lab){
 	if (is_solved(lab)){
 		printf("\n\nQue voulez-vous faire avec votre labyrinthe? (Entrer le numero de menu) : \n");
@@ -38,6 +40,7 @@ int main(void){
 					//Création du labyrinthe fixe, puis affichage
 					lab = createFixedLab(lab, LAB_L_FIX, LAB_C_FIX, 0, 0, 3, 3);
 					afficherLab(lab, 0);
+					
 					researchPath(lab);
 				do{
 					sub_menu(lab);

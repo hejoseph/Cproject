@@ -52,7 +52,7 @@ unsigned short** initTab2DFixed(){
 	return pTab;
 }
 
-
+// Créer un labyrinthe fixe
 struct Labyrinthe createFixedLab(struct Labyrinthe lab, int i, int column,int xe,int ye, int xs,int ys){
 	lab.l = i;
 	lab.c = column;
@@ -190,7 +190,7 @@ unsigned short genNbBetween(int a, int b){
 	return r;
 }
 
-//Génère un nombre aléatoire.
+//Génère un nombre aléatoire, qui concorde avec les murs de ses voisins.
 unsigned short genRandNb(int i, int j, unsigned short ** pTab, int ligne, int colonne){
 
 	int r = 0;
@@ -316,6 +316,7 @@ unsigned short genRandNb(int i, int j, unsigned short ** pTab, int ligne, int co
 	return r;
 }
 
+// Créér un tableau 2D aléatoirement, en ayant une cohérence entre les murs voisins
 unsigned short ** initTab2DRandom(int l, int c){
 	int i =0,j = 0;
 	unsigned short ** pTab2D;
@@ -329,6 +330,9 @@ unsigned short ** initTab2DRandom(int l, int c){
 	return pTab2D;
 }
 
+/**
+*	Initialise mon labyrinthe avec des valeurs aléatoires
+*/
 struct Labyrinthe createRandomLab(struct Labyrinthe lab){
 	lab.xentrer = 0;
 	lab.yentrer = 0;
@@ -341,6 +345,9 @@ struct Labyrinthe createRandomLab(struct Labyrinthe lab){
 	return lab;
 }
 
+/**
+* Initialise les paramètre de mon labyrinthe à partir d'un fichier
+*/
 struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/){
 	unsigned short **tab; // pointeur
 	int l; // nombre de ligne de la matrice
@@ -387,6 +394,7 @@ struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/
 	return lab;
 }
 
+//Modifie le bit d'une valeur, tout en spécifiant la rangée du bit à modifier
 void flipBit(unsigned short * n, int range){
 	unsigned short mask;
 	mask = 1<<range-1;
@@ -400,6 +408,7 @@ void visited(unsigned short * n){
 	*n=*n|mask;
 }
 
+//Rénitialise les murs virtuels de la case ou est situé le chercheur.
 void reset_virtual_wall(struct Labyrinthe * lab){
 	unsigned short mask = 0, a = 0, b = 0;
 	mask = ~mask;
@@ -410,6 +419,9 @@ void reset_virtual_wall(struct Labyrinthe * lab){
 	lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] & mask;
 }
 
+/**
+* Deplacement du chercheur vers une case voisine, en réinitialisant les murs virtuels, pour y rajouter un nouveau
+*/
 unsigned short moves(int i, struct Labyrinthe * lab){
 	
 	if(i==4){
@@ -437,6 +449,9 @@ unsigned short moves(int i, struct Labyrinthe * lab){
 	return lab->tab2D[lab->xsearcher][lab->ysearcher];
 }
 
+/**
+* 
+*/
 void moveReverse(int i , struct Labyrinthe * lab){
 	if (i == 4){
 		lab->xsearcher = lab->xsearcher + 1;
@@ -452,10 +467,14 @@ void moveReverse(int i , struct Labyrinthe * lab){
 	}
 }
 
+//Verifie si la case (valeur) a été visitée ou non
 int isVisited(unsigned short a){
 	return a >> 8 & 1;
 }
 
+/**
+* Retourne la valeur d'une case voisine
+*/
 unsigned short getVoisinVal(int i, struct Labyrinthe lab){
 	if (i == 4){
 		lab.xsearcher = lab.xsearcher - 1;
@@ -472,6 +491,9 @@ unsigned short getVoisinVal(int i, struct Labyrinthe lab){
 	return lab.tab2D[lab.xsearcher][lab.ysearcher];
 }
 
+/**
+* Modifie la distance stockée par la case(du tableau 2D) pointée par le chercheur
+*/
 void setDistance(struct Labyrinthe * lab, unsigned short dist){
 	unsigned short mask = 0;
 	mask = ~mask;
@@ -486,6 +508,11 @@ unsigned short getDistance(unsigned short a){
 	return a >> 10;
 }
 
+/** Fonction récursive :
+*Recherche tous les chemins d'un labyrinthe, à partir d'un sommet, 
+*en affectant une distance (incrémentée de 1 à chaque fois) 
+*à la case voisine s'il n'y a pas de mur entre le sommet et la case voisine
+*/
 void researchAllPath(struct Labyrinthe lab, unsigned short sommet, unsigned short dist){
 	int i = 0;
 	unsigned short sommet1 = 0;
@@ -532,7 +559,9 @@ void researchAllPath(struct Labyrinthe lab, unsigned short sommet, unsigned shor
 }
 
 
-
+/**
+* Modifie les positions x,y du chercheur
+*/
 void setSearcher(struct Labyrinthe * lab, int i	){
 	if (i == 4){
 		lab->xsearcher = lab->xsearcher - 1;
@@ -548,10 +577,16 @@ void setSearcher(struct Labyrinthe * lab, int i	){
 	}
 }
 
+/**
+* Modifie le 10ème bit de la valeur à "1", pour indiquer que la case fait partie des plus courts chemins 
+*/
 void setShortPath(struct Labyrinthe * lab){
 	flipBit(&lab->tab2D[lab->xsearcher][lab->ysearcher], 10);
 }
 
+/**
+* Recherche du plus court chemin à partir de la sortie du labyrinthe.
+*/
 void researchShortestPath(struct Labyrinthe lab){
 	int i = 0;
 	unsigned short dist_sommet = 0 ,dist_voisin = 0;
@@ -572,6 +607,9 @@ void researchShortestPath(struct Labyrinthe lab){
 	}
 }
 
+/** 
+*Vérifie si le labyrinthe est solvable
+*/
 int is_solved(struct Labyrinthe lab){
 	if (getDistance(lab.tab2D[lab.xsortie][lab.ysortie]) > 0){
 		return 1;
@@ -579,9 +617,11 @@ int is_solved(struct Labyrinthe lab){
 	return 0;
 }
 
+//Recherche de tous les chemins y compris le plus court s'il existe.
 void researchPath(struct Labyrinthe lab){
 	lab.xsearcher = lab.xentrer;
 	lab.ysearcher = lab.yentrer;
+	//Recherche à partir de l'entrée du labyrinthe
 	researchAllPath(lab, lab.tab2D[lab.xsearcher][lab.ysearcher], 0);
 
 	if (is_solved(lab)){
