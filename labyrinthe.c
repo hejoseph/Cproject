@@ -2,36 +2,6 @@
 #include <stdlib.h>
 #include "labyrinthe.h"
 
-
-void allocationL(unsigned short ***p, int size){
-	*p = malloc(size*sizeof(unsigned short ));
-	if (*p == NULL)
-	{
-		fprintf(stderr, "\n\n !!!!!!!!!  Allocation impossible !!!!!!!!!!!! \n\n");
-		system("pause");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void allocationC(unsigned short **p, int colonne, int size){
-	int i = 0;
-	for (i = 0; i < size; i++){
-		p[i] = malloc(colonne*sizeof(unsigned short));
-		if (p[i] == NULL)
-		{
-			fprintf(stderr, "\n\n !!!!!!!!!  Allocation impossible !!!!!!!!!!!! \n\n");
-			system("pause");
-			exit(EXIT_FAILURE);
-		}
-	}
-}
-
-//Allocation du tableau 2 dimension, avec en paramètre le nombre de ligne et de colonne.
-void tabAlloc(unsigned short ***p, int ligne, int colonne){
-	allocationL(p, ligne);
-	allocationC(*p, colonne, ligne);
-}
-
 //Initialisation d'un tableau 2 dimension à valeur fixe
 unsigned short** initTab2DFixed(){
 	int i = 0, j = 0;
@@ -41,8 +11,9 @@ unsigned short** initTab2DFixed(){
 	unsigned short tab2Dfixe[LAB_L_FIX][LAB_C_FIX] = { { 11, 12, 11, 12 }, { 9, 6, 9, 6 }, { 3, 10, 0, 14 }, { 11, 10, 2, 14 } };
 	unsigned short **pTab = NULL;
 
-	tabAlloc(&pTab, LAB_L_FIX, LAB_C_FIX);
-
+	pTab = tabAlloc(pTab, LAB_L_FIX, LAB_C_FIX);
+	
+	
 	//Remplissage du tableau bidimensionnel avec les valeurs fixées au départ.
 	for (i = 0; i<l ; i++){
 		for (j = 0; j < c; j++){
@@ -316,11 +287,33 @@ unsigned short genRandNb(int i, int j, unsigned short ** pTab, int ligne, int co
 	return r;
 }
 
+unsigned short ** tabAlloc1(unsigned short ** pTab, int l, int c){
+	int i = 0;
+	pTab = malloc(l*sizeof(unsigned short *));
+	if (pTab == NULL)
+	{
+		fprintf(stderr, "Memoire insuffisante, fin du programme\n");
+		exit(1);
+	}
+	for (i = 0; i < l; i++)
+	{
+		pTab[i] = malloc(c * sizeof(unsigned short));
+		if (pTab[i] == NULL)
+		{
+			fprintf(stderr, "Memoire insuffisante, fin du programme\n");
+			exit(1);
+		}
+	}
+
+	return pTab;
+}
+
 // Créér un tableau 2D aléatoirement, en ayant une cohérence entre les murs voisins
 unsigned short ** initTab2DRandom(int l, int c){
 	int i =0,j = 0;
-	unsigned short ** pTab2D;
-	tabAlloc(&pTab2D,l,c);
+	unsigned short ** pTab2D = NULL;
+	pTab2D = tabAlloc(pTab2D,l,c);
+//	tabAlloc(&pTab2D,l,c);
 	for (i = 0; i < l; i++){
 		for (j = 0; j < c; j++){
 			pTab2D[i][j] = genRandNb(i,j,pTab2D, l, c);
@@ -349,7 +342,7 @@ struct Labyrinthe createRandomLab(struct Labyrinthe lab){
 * Initialise les paramètre de mon labyrinthe à partir d'un fichier
 */
 struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/){
-	unsigned short **tab; // pointeur
+	unsigned short **tab = NULL; // pointeur
 	int l; // nombre de ligne de la matrice
 	int i=0;
 	int c; // nombre de colonne de la matrice
@@ -374,7 +367,8 @@ struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/
 	lab.c = c;
 
 	// declaration du tableau 2D
-	tabAlloc(&tab, lab.l, lab.c);
+	tab = tabAlloc(tab, lab.l, lab.c);
+
 	/*tab = (unsigned short**)malloc(l*sizeof(unsigned short*));
 	if (tab == NULL)
 		printf("erreur de tableau1\n");

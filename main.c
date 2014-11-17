@@ -84,9 +84,11 @@ int main(void){
 				choix = 0;
 				while(!(choix==3)){
 					printf("Nombre de ligne ? \n");
-					scanf("%d", &lab.l);
+			//		scanf("%d", &lab.l);
 					printf("Nombre de colonne ? \n");
-					scanf("%d", &lab.c);
+			//		scanf("%d", &lab.c);
+					lab.c = 5;
+					lab.l = 5;
 					lab = createRandomLab(lab);
 					afficherLab(lab,0);
 					
