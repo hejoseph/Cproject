@@ -333,11 +333,11 @@ unsigned short ** initTab2DRandom(int l, int c){
 *	Initialise mon labyrinthe avec des valeurs aléatoires
 */
 struct Labyrinthe createRandomLab(struct Labyrinthe lab){
-	lab.xentrer = 0;
-	lab.yentrer = 0;
-	lab.xsortie = lab.l-1;
-	lab.ysortie = lab.c-1;
 	if(lab.c>1&&lab.l>1){
+		lab.xentrer = -1;
+		lab.yentrer = -1;
+		lab.xsortie = -1;
+		lab.ysortie = -1;
 		lab.tab2D = initTab2DRandom(lab.l,lab.c);
 	}
 
@@ -347,7 +347,7 @@ struct Labyrinthe createRandomLab(struct Labyrinthe lab){
 /**
 * Initialise les paramètre de mon labyrinthe à partir d'un fichier
 */
-struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/){
+struct Labyrinthe createLabFromFile(struct Labyrinthe lab, char * nomfichier){
 	unsigned short **tab = NULL; // pointeur
 	int l; // nombre de ligne de la matrice
 	int i=0;
@@ -358,10 +358,11 @@ struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/
 	FILE *fichier;
 
 	// ouverture du ficher texte
-	fichier = fopen("matrice.txt", "r");
-	if(fichier == NULL)	//test d'ouverture du fichier
+	fichier = fopen(nomfichier, "r");
+	if (fichier == NULL){	//test d'ouverture du fichier
 		printf("erreur de fichier\n");
-
+		exit(1);
+	}
 	// recuperation taille et position entrer & sortie
 	fscanf(fichier, "%d %d %d %d %d %d", &c, &l, &xentrer, &yentrer, &xsortie, &ysortie);
 
@@ -374,15 +375,6 @@ struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/
 
 	// declaration du tableau 2D
 	tab = tabAlloc(tab, lab.l, lab.c);
-
-	/*tab = (unsigned short**)malloc(l*sizeof(unsigned short*));
-	if (tab == NULL)
-		printf("erreur de tableau1\n");
-	for(i=0;i<lab.l;i++) {
-		tab[i] = (unsigned short *)malloc(lab.c*sizeof(unsigned short));
-		if (tab[i] == NULL)
-			printf("erreur de tableau2\n");
-		}*/
 
 	// Remplissage du tableau bidimensionnel à partir du fichier texte (lecture)
 	for(i=0; i < lab.l; i++) {
@@ -674,4 +666,15 @@ void display_shortest_path(struct Labyrinthe lab){
 		researchShortestPath(lab);
 	}
 	afficherLab(lab, 2);
+}
+
+
+void free_memory(struct Labyrinthe* lab){
+	int i = 0;
+	if (lab->tab2D != NULL){
+		for (i = 0; i<lab->l; i++){
+			free(lab->tab2D[i]);
+		}
+		free(lab->tab2D);
+	}
 }

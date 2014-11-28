@@ -3,13 +3,13 @@
 #include <string.h>
 #include <ctype.h>
 #include "labyrinthe.h"
-ss
+
 //Affichage du menu principal
 void main_menu(){
 	printf("\n\nEntrez le numero de menu : \n");
-	printf("1-Afficher un labyrinthe fixe\n");
-	printf("2-Afficher un labyrinthe à partir d'un fichier '.txt'\n");
-	printf("3-Afficher un labyrinthe aleatoire\n");
+	printf("1-Generation d'un labyrinthe fixe\n");
+	printf("2-Generation d'un labyrinthe à partir d'un fichier '.txt'\n");
+	printf("3-Generation d'un labyrinthe aleatoire\n");
 	printf("4-Quitter le programme\n\n");
 }
 
@@ -26,13 +26,14 @@ void initLab(struct Labyrinthe* lab, int ligne, int colonne, int xentrer, int ye
 
 //Affichage du sous-menu
 void sub_menu(struct Labyrinthe lab, int choix){
+	
 	if (is_solved(lab)){
 		printf("\n\nQue voulez-vous faire avec votre labyrinthe? (Entrer le numero de menu) : \n");
-		if (choix!=0){
-			printf("0-Reafficher le labyrinthe sans solutions\n");
-		}
+		//if (choix!=0){
+			
+	//	}
 		if (choix != 1){
-			printf("1-Afficher plusieurs chemins possibles\n");
+			printf("1-Afficher plusieurs chemins possibles s'ils existent\n");
 		}
 		if (choix != 2){
 			printf("2-Afficher l'un des chemins le plus court\n");
@@ -42,6 +43,7 @@ void sub_menu(struct Labyrinthe lab, int choix){
 	}
 	printf("3-Retour au menu principal\n");
 	printf("4-Quitter le programme\n");
+	printf("0-Afficher le labyrinthe sans solutions\n");
 }
 
 void duplicate_struct(struct Labyrinthe source, struct Labyrinthe* dest){
@@ -51,12 +53,19 @@ void duplicate_struct(struct Labyrinthe source, struct Labyrinthe* dest){
 			dest->tab2D[i][j] = source.tab2D[i][j];
 		}
 	}
+	dest->c = source.c;
+	dest->l = source.l;
+	dest->xentrer = source.xentrer;
+	dest->yentrer = source.yentrer;
+	dest->xsortie = source.xsortie;
+	dest->ysortie = source.ysortie;
 }
 
 
 int main(void){
 	int i = 0, j = 0;
 	int choix;
+	char nomfichier[]="";
 	char newLab=' ';
 	struct Labyrinthe lab = {NULL,0,0};
 	struct Labyrinthe lab_copy = { NULL, 0, 0 };
@@ -69,7 +78,7 @@ int main(void){
 					lab = createFixedLab(lab, LAB_L_FIX, LAB_C_FIX, 0, 0, 3, 3);
 					//allocation d'un autre tableau
 					lab_copy.tab2D = tabAlloc(lab_copy.tab2D, LAB_L_FIX, LAB_C_FIX);
-					afficherLab(lab, 0);
+//					afficherLab(lab, 0);
 					researchPath(lab);
 					choix = ' ';
 				do{
@@ -94,15 +103,17 @@ int main(void){
 						printf("\nVous n'avez pas entrer la bonne valeur ! \n");
 						break;
 					}
-				} while (1);
+				} while (choix!=3);
+				free_memory(&lab);
+				free_memory(&lab_copy);
 				break;
 			case 2 : 
-				//char * nomfichier;
-			/*	printf("Entrez le chemin absolue de votre fichier à charger : \n");
-				scanf("%s", &nomfichier);*/
-				lab = createLabFromFile(lab/*, nomfichier*/);
-				lab_copy = createLabFromFile(lab);
-				afficherLab(lab,0);
+				
+				printf("Entrez le nom de votre fichier à charger : \n");
+				scanf("%s", nomfichier);
+				lab = createLabFromFile(lab, nomfichier);
+				lab_copy.tab2D = tabAlloc(lab_copy.tab2D, lab.l, lab.c);
+				//afficherLab(lab,0);
 				researchPath(lab);
 				choix = ' ';
 				printf("\n\n\n");
@@ -110,15 +121,6 @@ int main(void){
 					duplicate_struct(lab,&lab_copy);
 					sub_menu(lab, choix);
 					scanf("%d", &choix);
-					/*if (choix == 0 || choix == 1 || choix == 2){
-						afficherLab(lab, choix);
-					} else if (choix == 3){
-						break;
-					} else if (choix == 4){
-						exit(0);
-					} else {
-						printf("\nNumero incorrect ! \n\n");
-					}*/
 					switch (choix) {
 					case 0 : 
 						afficherLab(lab_copy, choix);
@@ -138,62 +140,49 @@ int main(void){
 						break;
 					}
 				} while (choix!=3);
-//				afficherPath(lab);
-//				afficherLab(lab);
+//				free_memory(&lab);
+				free_memory(&lab_copy);
 				break;
 			case 3 :
-				choix = 0;
-				while(!(choix==3)){
-					printf("Quel est le nombre de ligne et de colonne? \n(exemple: taper '3 2' pour ligne = 3, colonne = 2)\n");
-					scanf("%d %d", &lab.l, &lab.c);
-					printf("\nPosition Entrer du labyrinthe ? \n");
-					scanf("%d %d", &lab.xentrer, &lab.yentrer);
-					printf("\nPosition Sortie du labyrinthe ? \n");
-					scanf("%d %d", &lab.xsortie, &lab.ysortie);
-					do{
-						lab = createRandomLab(lab);
-						initLab(&lab_copy, lab.l, lab.c, lab.xentrer, lab.yentrer, lab.xsortie, lab.ysortie);
-
-						afficherLab(lab,0);
-					
-						researchPath(lab);
-					
-						if(!(is_solved(lab))){
-							newLab = ' ';
-							printf("\nAucun chemin, voulez-vous regenerer un autre labyrinthe?(O/N)\n");
-							scanf("%c",&newLab);
-exit(1);
-							/*if(newLab == 'o' || newLab == 'O'){
-								free(lab.tab2D);
-							}*/
-						}
-					} while (newLab == 'o' || newLab == 'O');
-					printf("\n\n\n\n\n");
-					choix = ' ';
-					do{
-						duplicate_struct(lab,&lab_copy);
-						sub_menu(lab, choix);
-						scanf("%d", &choix);
-						switch (choix) {
-						case 0:
-							afficherLab(lab, choix);
-							break;
-						case 1:
-							display_multiple_paths(lab);
-							break;
-						case 2:
-							display_shortest_path(lab);
-							break;
-						case 3:
-							break;
-						case 4:
-							exit(0);
-						default:
-							printf("\nVous n'avez pas entrer la bonne valeur ! \n");
-							break;
-						}
-					} while (choix!=3);
-				}
+				printf("Quel est le nombre de ligne et de colonne? \n(exemple: taper '3 2' pour ligne = 3, colonne = 2)\n");
+				scanf("%d %d", &lab.l, &lab.c);
+				lab = createRandomLab(lab);
+				afficherLab(lab, 0);
+				printf("\nPosition Entrer du labyrinthe ? \n");
+				scanf("%d %d", &lab.xentrer, &lab.yentrer);
+				afficherLab(lab, 0);
+				printf("\nPosition Sortie du labyrinthe ? \n");
+				scanf("%d %d", &lab.xsortie, &lab.ysortie);
+				afficherLab(lab, 0);
+				lab_copy.tab2D = tabAlloc(lab_copy.tab2D, lab.l, lab.c);
+				researchPath(lab);
+				choix = ' ';
+				printf("\n\n\n");
+				do{
+					duplicate_struct(lab, &lab_copy);
+					sub_menu(lab, choix);
+					scanf("%d", &choix);
+					switch (choix) {
+					case 0:
+						afficherLab(lab_copy, choix);
+						break;
+					case 1:
+						display_multiple_paths(lab_copy);
+						break;
+					case 2:
+						display_shortest_path(lab_copy);
+						break;
+					case 3:
+						break;
+					case 4:
+						exit(0);
+					default:
+						printf("\nVous n'avez pas entrer la bonne valeur ! \n");
+						break;
+					}
+				} while (choix != 3);
+				free_memory(&lab);
+				free_memory(&lab_copy);
 				break;
 			case 4 : 
 				exit(0);

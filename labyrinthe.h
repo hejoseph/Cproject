@@ -43,4 +43,6 @@ void display_multiple_paths(struct Labyrinthe lab);
 
 void display_shortest_path(struct Labyrinthe lab);
 
+void free_memory(struct Labyrinthe* lab);
+
 #endif
