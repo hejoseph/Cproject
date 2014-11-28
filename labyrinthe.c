@@ -2,6 +2,28 @@
 #include <stdlib.h>
 #include "labyrinthe.h"
 
+unsigned short ** tabAlloc(unsigned short ** pTab, int l, int c){
+	int i = 0;
+	pTab = malloc(l*sizeof(unsigned short *));
+	if (pTab == NULL)
+	{
+		fprintf(stderr, "Memoire insuffisante, fin du programme\n");
+		exit(1);
+	}
+	for (i = 0; i < l; i++)
+	{
+		pTab[i] = malloc(c * sizeof(unsigned short));
+		if (pTab[i] == NULL)
+		{
+			fprintf(stderr, "Memoire insuffisante, fin du programme\n");
+			exit(1);
+		}
+	}
+
+	return pTab;
+}
+
+
 //Initialisation d'un tableau 2 dimension à valeur fixe
 unsigned short** initTab2DFixed(){
 	int i = 0, j = 0;
@@ -59,6 +81,7 @@ void afficherLab(struct Labyrinthe lab, int menu){
 	int i=0, j=0;
 	//test
 	printf("\n\n");
+/*
 	for(i=0;i<lab.l;i++){
 		for(j=0;j<lab.c;j++){
 			printf("%d\t",lab.tab2D[i][j]);
@@ -67,7 +90,7 @@ void afficherLab(struct Labyrinthe lab, int menu){
 			}
 		}
 	}
-	
+*/	
 	if (lab.l>1&&lab.c>1){
 		for(i=0;i<lab.l;i++){
 			for(j=0;j<lab.c;j++){
@@ -137,6 +160,8 @@ void afficherLab(struct Labyrinthe lab, int menu){
 	for (i = 0; i < lab.c; i++){
 		printf("  %d ",i);
 	}
+
+/*
 	printf("\n ligne = %d\n colonne = %d\n",lab.xsearcher,lab.ysearcher);
 	printf("\n\n");
 	for (i = 0; i<lab.l; i++){
@@ -147,6 +172,7 @@ void afficherLab(struct Labyrinthe lab, int menu){
 			}
 		}
 	}
+*/
 }
 
 
@@ -287,26 +313,6 @@ unsigned short genRandNb(int i, int j, unsigned short ** pTab, int ligne, int co
 	return r;
 }
 
-unsigned short ** tabAlloc1(unsigned short ** pTab, int l, int c){
-	int i = 0;
-	pTab = malloc(l*sizeof(unsigned short *));
-	if (pTab == NULL)
-	{
-		fprintf(stderr, "Memoire insuffisante, fin du programme\n");
-		exit(1);
-	}
-	for (i = 0; i < l; i++)
-	{
-		pTab[i] = malloc(c * sizeof(unsigned short));
-		if (pTab[i] == NULL)
-		{
-			fprintf(stderr, "Memoire insuffisante, fin du programme\n");
-			exit(1);
-		}
-	}
-
-	return pTab;
-}
 
 // Créér un tableau 2D aléatoirement, en ayant une cohérence entre les murs voisins
 unsigned short ** initTab2DRandom(int l, int c){
@@ -416,7 +422,7 @@ void reset_virtual_wall(struct Labyrinthe * lab){
 /**
 * Deplacement du chercheur vers une case voisine, en réinitialisant les murs virtuels, pour y rajouter un nouveau
 */
-unsigned short moves(int i, struct Labyrinthe * lab){
+unsigned short moves(int i, struct Labyrinthe * lab, char * mode){
 	
 	if(i==4){
 		lab->xsearcher = lab->xsearcher-1;
@@ -438,8 +444,12 @@ unsigned short moves(int i, struct Labyrinthe * lab){
 		reset_virtual_wall(lab);
 		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 6);
 	}
-
-	lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 8);
+	if (mode =="research_all"){
+		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 8);
+	}
+	if (mode == "research_multiple"){
+		lab->tab2D[lab->xsearcher][lab->ysearcher] = lab->tab2D[lab->xsearcher][lab->ysearcher] | (1 << 9);
+	}
 	return lab->tab2D[lab->xsearcher][lab->ysearcher];
 }
 
@@ -540,8 +550,8 @@ void researchAllPath(struct Labyrinthe lab, unsigned short sommet, unsigned shor
 //				if (!(isVisited(val))){
 				if (getDistance(val) == 0 || dist < getDistance(val)){
 					dist++;
-					voisin = moves(i, &lab);
-					afficherLab(lab,1);
+					voisin = moves(i, &lab,"research_all");
+					//afficherLab(lab,1);
 					researchAllPath(lab, voisin, dist);
 					dist--;
 					moveReverse(i, &lab);
@@ -617,12 +627,51 @@ void researchPath(struct Labyrinthe lab){
 	lab.ysearcher = lab.yentrer;
 	//Recherche à partir de l'entrée du labyrinthe
 	researchAllPath(lab, lab.tab2D[lab.xsearcher][lab.ysearcher], 0);
+}
+
+void researchMultiplePaths(struct Labyrinthe lab, unsigned short sommet, int tree_level){
+	int i = 0;
+	unsigned short val = 0;
+	unsigned short voisin = 0;
+	int j = 4;
+//	unsigned short dist_sommet = 0, dist_voisin = 0;
+	for (i = 4; i>0; i--){
+		if (!(sommet >> i - 1 & 1)){
+			val = getVoisinVal(i, lab);
+			if (tree_level == 1){
+				voisin = moves(i, &lab, "research_multiple");
+				tree_level++;
+				researchMultiplePaths(lab, voisin, tree_level);
+				moveReverse(i, &lab);
+			}
+			if (getDistance(val) == getDistance(sommet)-1 ){
+				voisin = moves(i, &lab, "research_multiple");
+				researchMultiplePaths(lab, voisin, tree_level);
+				moveReverse(i, &lab);
+			}
+			
+		}
+	}
+}
+
+//Affiche plusieurs chemins possibles.
+void display_multiple_paths(struct Labyrinthe lab){
 
 	if (is_solved(lab)){
 		lab.xsearcher = lab.xsortie;
 		lab.ysearcher = lab.ysortie;
+		researchMultiplePaths(lab, lab.tab2D[lab.xsearcher][lab.ysearcher], 1);
+	}
+	afficherLab(lab, 2);
+}
+
+//Affiche le plus court chemin.
+void display_shortest_path(struct Labyrinthe lab){
+	if (is_solved(lab)){
+	
+		lab.xsearcher = lab.xsortie;
+		lab.ysearcher = lab.ysortie;
 		researchShortestPath(lab);
 	}
-	
-	
+	afficherLab(lab, 2);
 }

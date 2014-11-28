@@ -37,4 +37,10 @@ void researchPath(struct Labyrinthe lab);
 
 int is_solved(struct Labyrinthe lab);
 
+unsigned short ** tabAlloc(unsigned short ** pTab, int l, int c);
+
+void display_multiple_paths(struct Labyrinthe lab);
+
+void display_shortest_path(struct Labyrinthe lab);
+
 #endif
