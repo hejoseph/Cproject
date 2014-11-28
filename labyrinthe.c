@@ -80,7 +80,7 @@ void affSommet(){
 void afficherLab(struct Labyrinthe lab, int menu){
 	int i=0, j=0;
 	//test
-	printf("\n\n");
+	printf("\n");
 /*
 	for(i=0;i<lab.l;i++){
 		for(j=0;j<lab.c;j++){
@@ -160,6 +160,7 @@ void afficherLab(struct Labyrinthe lab, int menu){
 	for (i = 0; i < lab.c; i++){
 		printf("  %d ",i);
 	}
+	printf("\n\n");
 
 /*
 	printf("\n ligne = %d\n colonne = %d\n",lab.xsearcher,lab.ysearcher);

@@ -4,9 +4,14 @@
 #include <ctype.h>
 #include "labyrinthe.h"
 
+void clear(){
+	system("clear");
+}
+
 //Affichage du menu principal
 void main_menu(){
-	printf("\n\nEntrez le numero de menu : \n");
+	clear();
+	printf("Entrez le numero de menu : \n");
 	printf("1-Generation d'un labyrinthe fixe\n");
 	printf("2-Generation d'un labyrinthe à partir d'un fichier '.txt'\n");
 	printf("3-Generation d'un labyrinthe aleatoire\n");
@@ -26,9 +31,8 @@ void initLab(struct Labyrinthe* lab, int ligne, int colonne, int xentrer, int ye
 
 //Affichage du sous-menu
 void sub_menu(struct Labyrinthe lab, int choix){
-	
 	if (is_solved(lab)){
-		printf("\n\nQue voulez-vous faire avec votre labyrinthe? (Entrer le numero de menu) : \n");
+		printf("Que voulez-vous faire avec votre labyrinthe? (Entrer le numero de menu) : \n");
 		//if (choix!=0){
 			
 	//	}
@@ -43,7 +47,7 @@ void sub_menu(struct Labyrinthe lab, int choix){
 	}
 	printf("3-Retour au menu principal\n");
 	printf("4-Quitter le programme\n");
-	printf("0-Afficher le labyrinthe sans solutions\n");
+	printf("0-Afficher le labyrinthe sans solutions\n\n");
 }
 
 void duplicate_struct(struct Labyrinthe source, struct Labyrinthe* dest){
@@ -72,22 +76,25 @@ int main(void){
 	do{
 		main_menu();
 		scanf("%d",&choix);
+		clear();
 		switch(choix) {
 			case 1 :
-					//Création initiale du labyrinthe fixe, puis affichage
-					lab = createFixedLab(lab, LAB_L_FIX, LAB_C_FIX, 0, 0, 3, 3);
-					//allocation d'un autre tableau
-					lab_copy.tab2D = tabAlloc(lab_copy.tab2D, LAB_L_FIX, LAB_C_FIX);
+				//Création initiale du labyrinthe fixe, puis affichage
+				lab = createFixedLab(lab, LAB_L_FIX, LAB_C_FIX, 0, 0, 3, 3);
+				//allocation d'un autre tableau
+				lab_copy.tab2D = tabAlloc(lab_copy.tab2D, LAB_L_FIX, LAB_C_FIX);
 //					afficherLab(lab, 0);
-					researchPath(lab);
-					choix = ' ';
+				researchPath(lab);
+				choix = ' ';
 				do{
 					duplicate_struct(lab, &lab_copy);
 					sub_menu(lab, choix);
 					scanf("%d", &choix);
+					clear();
 					switch (choix) {
 					case 0:
 						afficherLab(lab_copy, choix);
+						
 						break;
 					case 1:
 						display_multiple_paths(lab_copy);
@@ -109,18 +116,19 @@ int main(void){
 				break;
 			case 2 : 
 				
-				printf("Entrez le nom de votre fichier à charger : \n");
+				printf("Entrez le nom de votre fichier à charger (matrice.txt est le fichier à tester) : \n");
 				scanf("%s", nomfichier);
 				lab = createLabFromFile(lab, nomfichier);
 				lab_copy.tab2D = tabAlloc(lab_copy.tab2D, lab.l, lab.c);
 				//afficherLab(lab,0);
 				researchPath(lab);
 				choix = ' ';
-				printf("\n\n\n");
+				printf("\n");
 				do{
 					duplicate_struct(lab,&lab_copy);
 					sub_menu(lab, choix);
 					scanf("%d", &choix);
+					clear();
 					switch (choix) {
 					case 0 : 
 						afficherLab(lab_copy, choix);
@@ -146,22 +154,32 @@ int main(void){
 			case 3 :
 				printf("Quel est le nombre de ligne et de colonne? \n(exemple: taper '3 2' pour ligne = 3, colonne = 2)\n");
 				scanf("%d %d", &lab.l, &lab.c);
+				clear();
 				lab = createRandomLab(lab);
 				afficherLab(lab, 0);
-				printf("\nPosition Entrer du labyrinthe ? \n");
-				scanf("%d %d", &lab.xentrer, &lab.yentrer);
+				printf("\nEntrer les coordonees (ligne,colonne) de l'entrer du labyrinthe \n");
+				do{
+					scanf("%d %d", &lab.xentrer, &lab.yentrer);
+					if(lab.xentrer > (lab.l-1) || lab.yentrer > (lab.c-1) || lab.xentrer < 0 || lab.yentrer <0){printf("Erreur de saisie, ressaisir les coordonnees de l'entrer :\n" );}
+				} while((lab.xentrer > (lab.l-1) || lab.yentrer > (lab.c-1)) || (lab.xentrer < 0 || lab.yentrer <0));
+				clear();
 				afficherLab(lab, 0);
-				printf("\nPosition Sortie du labyrinthe ? \n");
-				scanf("%d %d", &lab.xsortie, &lab.ysortie);
+				printf("\nEntrer les coordonees (ligne,colonne) de la sortie du labyrinthe \n");
+				do{
+					scanf("%d %d", &lab.xsortie, &lab.ysortie);
+					if(lab.xsortie > (lab.l-1) || lab.ysortie > (lab.c-1) || lab.xsortie < 0 || lab.ysortie <0){printf("Erreur de saisie, ressaisir les coordonnees de la sortie :\n" );}
+				} while(lab.xsortie > (lab.l-1) || lab.ysortie > (lab.c-1) || lab.xsortie < 0 || lab.ysortie <0);
+				clear();
 				afficherLab(lab, 0);
 				lab_copy.tab2D = tabAlloc(lab_copy.tab2D, lab.l, lab.c);
 				researchPath(lab);
 				choix = ' ';
-				printf("\n\n\n");
+				printf("\n");
 				do{
 					duplicate_struct(lab, &lab_copy);
 					sub_menu(lab, choix);
 					scanf("%d", &choix);
+					clear();
 					switch (choix) {
 					case 0:
 						afficherLab(lab_copy, choix);

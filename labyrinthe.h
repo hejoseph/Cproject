@@ -31,7 +31,7 @@ struct Labyrinthe createFixedLab(struct Labyrinthe lab, int line, int column, in
 
 struct Labyrinthe createRandomLab(struct Labyrinthe lab);
 
-struct Labyrinthe createLabFromFile(struct Labyrinthe lab/*, char * nomfichier*/);
+struct Labyrinthe createLabFromFile(struct Labyrinthe lab, char * nomfichier);
 
 void researchPath(struct Labyrinthe lab);
 
