@@ -157,14 +157,14 @@ int main(void){
 				clear();
 				lab = createRandomLab(lab);
 				afficherLab(lab, 0);
-				printf("\nEntrer les coordonees (ligne,colonne) de l'entrer du labyrinthe \n");
+				printf("\nEntrer les coordonees de l'entrer du labyrinthe (exemple : '3 2' pour ligne numero 3 et colonne numero 2) : \n");
 				do{
 					scanf("%d %d", &lab.xentrer, &lab.yentrer);
 					if(lab.xentrer > (lab.l-1) || lab.yentrer > (lab.c-1) || lab.xentrer < 0 || lab.yentrer <0){printf("Erreur de saisie, ressaisir les coordonnees de l'entrer :\n" );}
 				} while((lab.xentrer > (lab.l-1) || lab.yentrer > (lab.c-1)) || (lab.xentrer < 0 || lab.yentrer <0));
 				clear();
 				afficherLab(lab, 0);
-				printf("\nEntrer les coordonees (ligne,colonne) de la sortie du labyrinthe \n");
+				printf("\nEntrer les coordonees de la sortie du labyrinthe (exemple : '3 2' pour ligne numero 3 et colonne numero 2) :\n");
 				do{
 					scanf("%d %d", &lab.xsortie, &lab.ysortie);
 					if(lab.xsortie > (lab.l-1) || lab.ysortie > (lab.c-1) || lab.xsortie < 0 || lab.ysortie <0){printf("Erreur de saisie, ressaisir les coordonnees de la sortie :\n" );}
