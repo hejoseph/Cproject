@@ -365,7 +365,11 @@ struct Labyrinthe createLabFromFile(struct Labyrinthe lab, char * nomfichier){
 		exit(1);
 	}
 	// recuperation taille et position entrer & sortie
+<<<<<<< HEAD
 	fscanf(fichier, "%d %d %d %d %d %d", &l, &c, &xentrer, &yentrer, &xsortie, &ysortie);
+=======
+	fscanf(fichier, "%d %d %d %d %d %d", &c, &l, &xentrer, &yentrer, &xsortie, &ysortie);
+>>>>>>> d333479a05d4a9b76813875a457962cca72d3a78
 
 	lab.xentrer = xentrer;
 	lab.yentrer = yentrer;
