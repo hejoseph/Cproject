@@ -5,12 +5,13 @@
 #include "labyrinthe.h"
 
 void clear(){
-//	system("clear");
+	system("clear");
 }
 
 //Affichage du menu principal
 void main_menu(){
 	clear();
+	printf("! PROGRAMME LABYRINTHE !\n\n");
 	printf("Entrez le numero de menu : \n");
 	printf("1-Generation d'un labyrinthe fixe\n");
 	printf("2-Generation d'un labyrinthe a partir d'un fichier '.txt'\n");
@@ -33,12 +34,7 @@ void sub_menu(struct Labyrinthe lab, int choix){
 	}
 	printf("3-Retour au menu principal\n");
 	printf("4-Quitter le programme\n");
-	if (is_solved(lab)){
-		if (choix != 5){
-			printf("5-Afficher UN seul chemin possible [quelconque]\n");
-		}
-	}
-	printf("0-Afficher le labyrinthe sans solutions\n\n");
+	printf("0-Afficher le labyrinthe sans solutions\n");
 }
 
 //copier une labyrinthe source dans une labyrinthe dest
@@ -83,10 +79,12 @@ int main(void){
 				do{
 					duplicate_struct(lab, &lab_copy);
 					sub_menu(lab, choix);
+
 					scanf("%d", &choix);
 					clear();
 					switch (choix) {
 					case 0:
+						printf("Mode Sans Solutions : \n");
 						afficherLab(lab_copy, choix);
 						break;
 					case 1:
@@ -124,10 +122,16 @@ int main(void){
 				do{
 					duplicate_struct(lab,&lab_copy);
 					sub_menu(lab, choix);
+					if (is_solved(lab)){
+						if (choix != 5){
+							printf("5-Afficher UN seul chemin possible [quelconque]\n\n");
+						}
+					}
 					scanf("%d", &choix);
 					clear();
 					switch (choix) {
 					case 0 : 
+						printf("Mode Sans Solutions : \n");
 						afficherLab(lab_copy, choix);
 						break;
 					case 1 :
@@ -150,7 +154,7 @@ int main(void){
 						break;
 					}
 				} while (choix!=3);
-//				free_memory(&lab);
+				//free_memory(&lab);
 				free_memory(&lab_copy);
 				free_memory(&lab_copy2);
 				break;
@@ -185,6 +189,7 @@ int main(void){
 					clear();
 					switch (choix) {
 					case 0:
+						printf("Mode Sans Solutions : \n");
 						afficherLab(lab_copy, choix);
 						break;
 					case 1:

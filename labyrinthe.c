@@ -657,6 +657,7 @@ void display_multiple_paths(struct Labyrinthe lab){
 		lab.ysearcher = lab.ysortie;
 		researchMultiplePaths(lab, lab.tab2D[lab.xsearcher][lab.ysearcher], 1);
 	}
+	printf("Mode Plusieurs Chemins(court+quelconque) S'ils Existent : \n");
 	afficherLab(lab, 2);
 }
 
@@ -668,6 +669,7 @@ void display_shortest_path(struct Labyrinthe lab){
 		lab.ysearcher = lab.ysortie;
 		researchShortestPath(lab);
 	}
+	printf("Mode Plus Court Chemin :\n");
 	afficherLab(lab, 2);
 }
 
@@ -683,10 +685,6 @@ void research_one_path(struct Labyrinthe lab, unsigned short sommet){
 				}
 
 				voisin = moves(i, &lab,"research_all");
-				printf("\nx=%d\ty=%d\n", lab.xsearcher, lab.ysearcher);
-
-				
-
 				research_one_path(lab, voisin);
 
 				moveReverse(i, &lab);
@@ -701,6 +699,7 @@ void display_one_path(struct Labyrinthe lab){
 	lab.xsearcher = lab.xentrer;
 	lab.ysearcher = lab.yentrer;
 	research_one_path(lab, lab.tab2D[lab.xsearcher][lab.ysearcher]);
+	printf("Mode Un Seul Chemin Quelconque : \n");
 	afficherLab(lab,1);
 }
 
