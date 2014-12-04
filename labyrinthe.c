@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "labyrinthe.h"
 
+//Allocation de mémoire pour un tableau 2D
 unsigned short ** tabAlloc(unsigned short ** pTab, int l, int c){
 	int i = 0;
 	pTab = malloc(l*sizeof(unsigned short *));
@@ -45,7 +46,7 @@ unsigned short** initTab2DFixed(){
 	return pTab;
 }
 
-// Créer un labyrinthe fixe
+// Création d'un labyrinthe fixe
 struct Labyrinthe createFixedLab(struct Labyrinthe lab, int i, int column,int xe,int ye, int xs,int ys){
 	lab.l = i;
 	lab.c = column;
@@ -79,8 +80,10 @@ void affSommet(){
 //Affichage du Labyrinthe
 void afficherLab(struct Labyrinthe lab, int menu){
 	int i=0, j=0;
-	//test
+	
 	printf("\n");
+
+	//test
 /*
 	for(i=0;i<lab.l;i++){
 		for(j=0;j<lab.c;j++){
@@ -535,10 +538,6 @@ void researchAllPath(struct Labyrinthe lab, unsigned short sommet, unsigned shor
 //	afficherLab(lab, 1);
 //	afficherLab(lab,1);
 	for(i=4;i>0;i--){
-		if (sommet == 4577){
-			sommet = 4577;
-		}
-	//sommet = 4577
 		if(!(sommet>>i-1 & 1)){
 			if (!(sommet >> i +j - 1 & 1)){
 				val = getVoisinVal(i,lab);
@@ -610,9 +609,10 @@ void researchShortestPath(struct Labyrinthe lab){
 *Vérifie si le labyrinthe est solvable
 */
 int is_solved(struct Labyrinthe lab){
-	if (getDistance(lab.tab2D[lab.xsortie][lab.ysortie]) > 0){
+	if (getDistance(lab.tab2D[lab.xsortie][lab.ysortie]) > 0 || lab.tab2D[lab.xsortie][lab.ysortie] >> 8 & 1){
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -671,7 +671,40 @@ void display_shortest_path(struct Labyrinthe lab){
 	afficherLab(lab, 2);
 }
 
+void research_one_path(struct Labyrinthe lab, unsigned short sommet){
+	int i = 0, j=4;
+	unsigned short voisin=0;
+	for(i=4;i>0;i--){
+		if(!(sommet>>i-1 & 1)){
+			if (!(sommet >> i +j - 1 & 1)){
+				//Arrêt de la recherche lorsque la sortie est atteinte
+				if (is_solved(lab)){
+					return;
+				}
 
+				voisin = moves(i, &lab,"research_all");
+				printf("\nx=%d\ty=%d\n", lab.xsearcher, lab.ysearcher);
+
+				
+
+				research_one_path(lab, voisin);
+
+				moveReverse(i, &lab);
+			}
+		}
+	
+	}
+}
+
+//Recherche d'un seul chemin quelque possible
+void display_one_path(struct Labyrinthe lab){
+	lab.xsearcher = lab.xentrer;
+	lab.ysearcher = lab.yentrer;
+	research_one_path(lab, lab.tab2D[lab.xsearcher][lab.ysearcher]);
+	afficherLab(lab,1);
+}
+
+//Libère l'espeace allouée
 void free_memory(struct Labyrinthe* lab){
 	int i = 0;
 	if (lab->tab2D != NULL){

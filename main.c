@@ -5,7 +5,7 @@
 #include "labyrinthe.h"
 
 void clear(){
-	system("clear");
+//	system("clear");
 }
 
 //Affichage du menu principal
@@ -13,29 +13,15 @@ void main_menu(){
 	clear();
 	printf("Entrez le numero de menu : \n");
 	printf("1-Generation d'un labyrinthe fixe\n");
-	printf("2-Generation d'un labyrinthe à partir d'un fichier '.txt'\n");
+	printf("2-Generation d'un labyrinthe a partir d'un fichier '.txt'\n");
 	printf("3-Generation d'un labyrinthe aleatoire\n");
 	printf("4-Quitter le programme\n\n");
-}
-
-void initLab(struct Labyrinthe* lab, int ligne, int colonne, int xentrer, int yentrer, int xsortie, int ysortie){
-	lab->tab2D = tabAlloc(lab->tab2D, ligne, colonne);
-	lab->l = ligne;
-	lab->c = colonne ;
-	lab->xentrer = xentrer ;
-	lab->yentrer = yentrer ;
-	lab->xsortie = xsortie;
-	lab->ysortie = ysortie;
-
 }
 
 //Affichage du sous-menu
 void sub_menu(struct Labyrinthe lab, int choix){
 	if (is_solved(lab)){
 		printf("Que voulez-vous faire avec votre labyrinthe? (Entrer le numero de menu) : \n");
-		//if (choix!=0){
-			
-	//	}
 		if (choix != 1){
 			printf("1-Afficher plusieurs chemins possibles s'ils existent\n");
 		}
@@ -47,9 +33,15 @@ void sub_menu(struct Labyrinthe lab, int choix){
 	}
 	printf("3-Retour au menu principal\n");
 	printf("4-Quitter le programme\n");
+	if (is_solved(lab)){
+		if (choix != 5){
+			printf("5-Afficher UN seul chemin possible [quelconque]\n");
+		}
+	}
 	printf("0-Afficher le labyrinthe sans solutions\n\n");
 }
 
+//copier une labyrinthe source dans une labyrinthe dest
 void duplicate_struct(struct Labyrinthe source, struct Labyrinthe* dest){
 	int i, j = 0;
 	for (i = 0; i < source.l; i ++){
@@ -73,6 +65,7 @@ int main(void){
 	char newLab=' ';
 	struct Labyrinthe lab = {NULL,0,0};
 	struct Labyrinthe lab_copy = { NULL, 0, 0 };
+	struct Labyrinthe lab_copy2 = { NULL, 0, 0 };
 	do{
 		main_menu();
 		scanf("%d",&choix);
@@ -81,9 +74,10 @@ int main(void){
 			case 1 :
 				//Création initiale du labyrinthe fixe, puis affichage
 				lab = createFixedLab(lab, LAB_L_FIX, LAB_C_FIX, 0, 0, 3, 3);
+
 				//allocation d'un autre tableau
 				lab_copy.tab2D = tabAlloc(lab_copy.tab2D, LAB_L_FIX, LAB_C_FIX);
-//					afficherLab(lab, 0);
+
 				researchPath(lab);
 				choix = ' ';
 				do{
@@ -94,7 +88,6 @@ int main(void){
 					switch (choix) {
 					case 0:
 						afficherLab(lab_copy, choix);
-						
 						break;
 					case 1:
 						display_multiple_paths(lab_copy);
@@ -116,11 +109,15 @@ int main(void){
 				break;
 			case 2 : 
 				
-				printf("Entrez le nom de votre fichier à charger (matrice.txt est le fichier à tester) : \n");
+				printf("Entrez le nom de votre fichier a charger (matrice.txt est le fichier a tester) : \n");
 				scanf("%s", nomfichier);
+
+				//initialisation des labyrinthes 
 				lab = createLabFromFile(lab, nomfichier);
 				lab_copy.tab2D = tabAlloc(lab_copy.tab2D, lab.l, lab.c);
-				//afficherLab(lab,0);
+				lab_copy2.tab2D = tabAlloc(lab_copy.tab2D, lab.l, lab.c);
+				duplicate_struct(lab,&lab_copy2);
+
 				researchPath(lab);
 				choix = ' ';
 				printf("\n");
@@ -143,6 +140,11 @@ int main(void){
 						break;
 					case 4:
 						exit(0);
+					case 5:
+						if (is_solved(lab)){
+							display_one_path(lab_copy2);
+						}
+						break;
 					default :
 						printf("\nVous n'avez pas entrer la bonne valeur ! \n");
 						break;
@@ -150,6 +152,7 @@ int main(void){
 				} while (choix!=3);
 //				free_memory(&lab);
 				free_memory(&lab_copy);
+				free_memory(&lab_copy2);
 				break;
 			case 3 :
 				printf("Quel est le nombre de ligne et de colonne? \n(exemple: taper '3 2' pour ligne = 3, colonne = 2)\n");

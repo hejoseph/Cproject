@@ -4,9 +4,6 @@
 #define LAB_C_FIX 4 /* nombre fixe de colonne pour le labyrinthe fixe*/
 
 #define LAB_L_FIX 4 /* nombre fixe de ligne pour le labyrinthe fixe */
-/*const int LAB_C_FIX = 4;
-const int LAB_L_FIX = 4;*/
-
 
 /*Définition du labyrinthe*/
 struct Labyrinthe{
@@ -42,6 +39,8 @@ unsigned short ** tabAlloc(unsigned short ** pTab, int l, int c);
 void display_multiple_paths(struct Labyrinthe lab);
 
 void display_shortest_path(struct Labyrinthe lab);
+
+void display_one_path(struct Labyrinthe lab);
 
 void free_memory(struct Labyrinthe* lab);
 
